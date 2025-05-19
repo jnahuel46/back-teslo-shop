@@ -2,20 +2,17 @@ import {
   Controller,
   Post,
   UploadedFile,
-  UseInterceptors,
   BadRequestException,
   Param,
   Get,
   Res,
 } from '@nestjs/common';
 import { FilesService } from './files.service';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { fileFilter } from './helpers/fileFilter.helper';
-import { diskStorage } from 'multer';
-import { fileNamer } from './helpers/fileNamer.helper';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiConsumes, ApiBody } from '@nestjs/swagger';
 
+@ApiTags('Files')
 @Controller('files')
 export class FilesController {
   constructor(
@@ -24,6 +21,9 @@ export class FilesController {
   ) {}
 
   @Get('product/:imageName')
+  @ApiOperation({ summary: 'Obtener imagen de producto' })
+  @ApiParam({ name: 'imageName', description: 'Nombre de la imagen' })
+  @ApiResponse({ status: 200, description: 'Imagen retornada.' })
   findProductImage(
     @Res() res: Response,
     @Param('imageName') imageName: string,
@@ -38,18 +38,27 @@ export class FilesController {
   //the FileInterceptor is used to intercept the file and save it to the server
   //the fileFilter is used to filter the file in that function we can create different filters for different files
   @Post('product')
-  @UseInterceptors(
-    FileInterceptor('file', {
-      fileFilter: fileFilter,
-      limits: {
-        fileSize: 1024 * 1024 * 5, //5MB
+  @ApiOperation({ summary: 'Subir imagen de producto' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'File to upload',
+        },
       },
-      storage: diskStorage({
-        destination: './statics/uploads',
-        filename: fileNamer,
-      }),
-    }),
-  )
+    },
+    examples: {
+      ejemplo: {
+        summary: 'Example of image upload',
+        value: {},
+      },
+    },
+  })
+  @ApiResponse({ status: 201, description: 'Imagen subida.' })
   uploadProductImage(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('File is required');

@@ -5,8 +5,10 @@ import {
   BeforeInsert,
   BeforeUpdate,
   OneToMany,
+  ManyToOne,
 } from 'typeorm';
 import { ProductImage } from './product-image.entity';
+import { User } from 'src/auth/entities/user.entity';
 
 @Entity({name: 'products'})
 //this entity its taking by typeorm to create the table in the database
@@ -58,6 +60,9 @@ export class Product {
     eager: true,
   })
   images?: ProductImage[];  
+
+  @ManyToOne(() => User, (user) => user.product)
+  user: User;
 
   @BeforeInsert()
   checkSlugInsert() {
