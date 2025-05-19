@@ -17,7 +17,7 @@ async function bootstrap() {
   // Swagger config
   const config = new DocumentBuilder()
     .setTitle('Teslo Shop API')
-    .setDescription('Documentación de la API Teslo Shop')
+    .setDescription('Teslo Shop API description')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
